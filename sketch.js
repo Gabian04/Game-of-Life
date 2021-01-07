@@ -1,119 +1,125 @@
-let tablero;
-let columnas;
-let renglones;
-let celda_tamanio=10;
-function setup() {
-  createCanvas(600, 400);
-  
- 
-  columnas = width/celda_tamanio;
-  renglones = height/celda_tamanio;
-  tablero = creaTablero(columnas,renglones);
-  for(let x=1;x<columnas-1;x+=1){
-    for(let y=1; y<renglones-1;y+=1){
-      tablero[x][y]= floor(random(2));
+let cont = 0,born = 0, die = 0;
+let board;
+let columns;
+let rows;
+let cell_size = 10;
 
-       
+function setup() {
+  createCanvas(600, 500);
+  textSize(45);
+  columns = width/cell_size;
+  rows = (height-100)/cell_size;
+  board = createBoard(columns, rows);
+  for(let x = 1; x < columns-1; x++){
+    for(let y = 1; y < rows-1; y++){
+      board[x][y] = floor(random(2));
     }
   }
- 
 }
 
 function draw() {
-  background(220);
-    
-  pintaTablero();
-  siguienteGen();
- 
-  
+  background(0);
+  colorBoard();
+  if (keyIsPressed === true){
+    if (keyCode === RIGHT_ARROW)
+      cont++;
+      let res = []
+      res = next();
+      born = res[0]; die = res[1];
+  }
+  genText(cont, born, die);
 }
-function siguienteGen(){
-  let tablero_sig= creaTablero(columnas,renglones);
-  r = random(255);
-  g = random(255); 
-  b = random(255); 
-  a = random(255);
-  for(let x=1;x<columnas-1;x+=1){
-    for(let y=1; y<renglones-1;y+=1){
-      let celda=tablero[x][y];
-      let vecinos=cuentaVecinos(x,y);
-      
-      if(celda==0 && vecinos==3){
-        tablero_sig[x][y]=1;   
-      let posx=x*celda_tamanio;
-      let posy=y*celda_tamanio;
-     if(tablero[x][y]==1){
-        fill(r, g, b, a);
-       stroke(0);
-       rect(posx,posy,celda_tamanio,celda_tamanio);
-       
-     }
+  
+
+function colorBoard(){
+  for(let x = 0; x < columns; x++){
+    for(let y = 0; y < rows; y++){
+      let posx = x*cell_size;
+      let posy = y*cell_size;
+      if(board[x][y] == 1){
+        fill(255);
+        stroke(0);
+        rect(posx,posy,cell_size);
       }
-      else if(celda==1 &&(vecinos>3 || vecinos < 2)){
-        tablero_sig[x][y]=0;
-         let posx=x*celda_tamanio;
-      let posy=y*celda_tamanio;
-     if(tablero[x][y]==1){
-        fill(r, g, b, a);
-       stroke(0);
-       rect(posx,posy,celda_tamanio,celda_tamanio);
-       
-     }
-      }
-      else{
-        tablero_sig[x][y]=celda;
-         let posx=x*celda_tamanio;
-      let posy=y*celda_tamanio;
-     if(tablero[x][y]==1){
-       fill(r, g, b, a);
-       stroke(0);
-       rect(posx,posy,celda_tamanio,celda_tamanio);
-       
-     }
-      }
-      
     }
   }
-  tablero=tablero_sig;
 }
 
-function cuentaVecinos(x,y){
-  let suma_vecinos=0;
-  suma_vecinos += tablero[x-1][y-1];
-  suma_vecinos += tablero[x][y-1];
-  suma_vecinos += tablero[x+1][y-1];
-  suma_vecinos += tablero[x-1][y];
-  suma_vecinos += tablero[x+1][y];
-  suma_vecinos += tablero[x-1][y+1];
-  suma_vecinos += tablero[x][y+1];
-  suma_vecinos += tablero[x+1][y+1];
-  return suma_vecinos;
-  
-  
-}
-function pintaTablero(){
-  for(let x=0;x<columnas;x+=1){
-    for(let y=0; y<renglones;y+=1){
-      let posx=x*celda_tamanio;
-      let posy=y*celda_tamanio;
-     if(tablero[x][y]==1){
-       fill(100,0,215);
-       stroke(0);
-       rect(posx,posy,celda_tamanio,celda_tamanio);
-       
-     }
+function next(){
+  let r = random(255);
+  let g = random(255); 
+  let b = random(255); 
+  let a = random(255);
+  let data = [0,0];
+  let next_board = createBoard(columns, rows);
+  for(let x = 1; x < columns-1; x++){
+    for(let y = 1; y < rows-1; y++){
+      let cell = board[x][y];
+      let neighbors = 0;
+      neighbors = countNeighbors(x,y);
+      if(cell == 0 && neighbors == 3){
+        next_board[x][y] = 1;
+        let posx=x*cell_size;
+        let posy=y*cell_size;
+        if(board[x][y]==1){
+          fill(r, g, b, a);
+          stroke(0);
+          rect(posx,posy,cell_size,cell_size);
+       }
+        data[0]++;
+      }else if(cell == 1 && (neighbors > 3 || neighbors < 2)){
+        next_board[x][y] = 0;
+        let posx=x*cell_size;
+        let posy=y*cell_size;
+        if(board[x][y]==1){
+          fill(r, g, b, a);
+          stroke(0);
+          rect(posx,posy,cell_size,cell_size);
+       }
+        data[1]++;
+      }else{
+        next_board[x][y] = cell;
+        let posx=x*cell_size;
+        let posy=y*cell_size;
+        if(board[x][y]==1){
+          fill(r, g, b, a);
+          stroke(0);
+          rect(posx,posy,cell_size,cell_size);
+       }
+      }
     }
   }
-    
-  
-  
+  board = next_board;
+  return data;
 }
 
-function creaTablero(cols,ren){
-  let tab = new Array(cols);
-  for(let i =0; i<tab.length; i=i+1){
-    tab[i] = new Array(ren);
+function countNeighbors(x,y){
+  let sum_neighbors = 0;
+  sum_neighbors += board[x-1][y-1];
+  sum_neighbors += board[x][y-1];
+  sum_neighbors += board[x+1][y-1];
+  sum_neighbors += board[x-1][y];
+  sum_neighbors += board[x+1][y];
+  sum_neighbors += board[x-1][y+1];
+  sum_neighbors += board[x][y+1];
+  sum_neighbors += board[x+1][y+1];
+  return sum_neighbors;
+}
+
+function createBoard(cols,rws){
+  let board = new Array(cols);
+  for(let i = 0; i < board.length; i++){
+    board[i] = new Array(rws);
   }
-  return tab;
-  
+  return board;
+}
+
+function genText(cont, born, die){
+  fill(255,255,255);
+  text(cont,20,440);
+  text("GEN",20,490);
+  text(born,250,440);
+  text("BORN",250,490);
+  text(die,500,440);
+  text("DIE",500,490);
 }
